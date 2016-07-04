@@ -1,0 +1,17 @@
+{
+  "name": "Magic-Mirror-Module-Contentful-Mirror",
+  "version": "0.1.0",
+  "description": "Contentful module for the Magic Mirror.",
+  "keywords": [
+    "magic mirror",
+    "smart mirror",
+    "contentful",
+    "module"
+  ],
+  "author": "David Litvak Bruno (Contentful GmbH)",
+  "license": "MIT",
+  "homepage": "https://contentful.com",
+  "dependencies": {
+    "contentful": "3.4.3"
+  }
+}
