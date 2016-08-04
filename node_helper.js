@@ -12,14 +12,14 @@ module.exports = NodeHelper.create({
   start: function() {
     var self = this;
 
-    this.client = {};
+    this.clients = {};
 
     console.log("Starting node helper for: " + this.name);
   },
 
-  createClient: function(space, accessToken, preview) {
+  createClient: function(indexKey, space, accessToken, preview) {
     console.log("Creating Contentful Client for: " + space);
-    this.client = contentful.createClient({
+    this.clients[indexKey] = contentful.createClient({
       space: space,
       accessToken: accessToken,
       preview: preview,
@@ -27,12 +27,12 @@ module.exports = NodeHelper.create({
     });
   },
 
-  getEntries: function(query) {
+  getEntries: function(indexKey, space, query) {
     var self = this;
 
-    this.client.getEntries(query)
+    this.clients[indexKey].getEntries(query)
     .then(function(entries) {
-      self.sendSocketNotification("CONTENTFUL_ENTRIES_FETCHED", {entries: entries});
+      self.sendSocketNotification("CONTENTFUL_ENTRIES_FETCHED", {indexKey: indexKey, space: space, entries: entries});
     })
     .catch(function(e) {
       console.log(e);
@@ -41,10 +41,10 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function(notification, payload) {
     if (notification === "CREATE_CLIENT") {
-      this.createClient(payload.space, payload.accessToken);
+      this.createClient(payload.indexKey, payload.space, payload.accessToken);
       this.sendSocketNotification("CLIENT_CREATED");
     } else if (notification === "GET_ENTRIES") {
-      this.getEntries(payload.query);
+      this.getEntries(payload.indexKey, payload.space, payload.query);
     }
   },
 });

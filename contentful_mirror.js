@@ -29,11 +29,16 @@ Module.register("contentful_mirror", {
 
     this.displayText = this.config.displayText;
 
+    this.indexKey = this.config.contentful.space + (Math.random() * 1000);
+
     this.sendSocketNotification("CREATE_CLIENT", {
+      indexKey: this.indexKey,
       space: this.config.contentful.space,
       accessToken: this.config.contentful.accessToken,
       preview: this.config.contentful.preview
     });
+
+    this.entries = this.entries || {};
 
     var self = this;
     setInterval(function() {
@@ -43,10 +48,10 @@ Module.register("contentful_mirror", {
 
   socketNotificationReceived: function(notification, payload) {
     if (notification === "CLIENT_CREATED") {
-      this.sendSocketNotification("GET_ENTRIES", {query: this.config.contentful.query});
+      this.sendSocketNotification("GET_ENTRIES", {indexKey: this.indexKey, space: this.config.contentful.space, query: this.config.contentful.query});
     } else if (notification === "CONTENTFUL_ENTRIES_FETCHED") {
       if (payload.entries.items.length > 0) {
-        this.entries = payload.entries;
+        this.entries[payload.indexKey] = payload.entries;
         this.resolveIncludes();
       }
     } else if (notification === "FETCH_ERROR") {
@@ -60,13 +65,13 @@ Module.register("contentful_mirror", {
   },
 
   resolveIncludes: function() {
-    var includes = this.entries.includes;
+    var includes = this.entries[this.indexKey].includes;
     includes.Entry = includes.Entry || [];
-    includes.Entry = includes.Entry.concat(this.entries.items).filter(function(value, index, self) {
+    includes.Entry = includes.Entry.concat(this.entries[this.indexKey].items).filter(function(value, index, self) {
       return self.indexOf(value) === index;
     });
 
-    this.entries.items.forEach(function(entry) {
+    this.entries[this.indexKey].items.forEach(function(entry) {
       Object.keys(entry.fields).forEach(function(key) {
         if (typeof entry.fields[key] === "object" &&
               entry.fields[key] !== null &&
@@ -81,7 +86,7 @@ Module.register("contentful_mirror", {
   },
 
   getRandomEntry: function() {
-    return this.entries.items[Math.floor(Math.random() * this.entries.items.length)];
+    return this.entries[this.indexKey].items[Math.floor(Math.random() * this.entries[this.indexKey].items.length)];
   },
 
   getField: function(entry, field_accessor) {
@@ -113,7 +118,7 @@ Module.register("contentful_mirror", {
   },
 
   getContentfulRepresentation: function() {
-    if (this.entries !== undefined) {
+    if (this.entries[this.indexKey] !== undefined) {
       // We fetch a random entry
       var selected_entry = this.getRandomEntry();
       var template_regex = /\{\{\s*(?:\w+(?:\[\d+\])?\.?)+\s*\}\}/gm;
@@ -146,7 +151,7 @@ Module.register("contentful_mirror", {
   getDom: function() {
     var content =this.getContentfulRepresentation();
     var wrapper = document.createElement("div");
-    wrapper.className = "contentful thin medium bright";
+    wrapper.className = "contentful medium bright";
     wrapper.innerHTML = content;
 
     return wrapper;
