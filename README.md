@@ -3,10 +3,7 @@
 Contentful Module for the [Magic Mirror](https://github.com/MichMich/MagicMirror). It provides a view environment for Contentful entries.
 
 ## Contentful
-[Contentful](http://www.contentful.com) is a content management platform for web applications,
-mobile apps and connected devices. It allows you to create, edit & manage content in the cloud
-and publish it anywhere via powerful API. Contentful offers tools for managing editorial
-teams and enabling cooperation between organizations.
+[Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. Unlike a CMS, Contentful was built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
 
 ## Installation
 1. Navigate into your MagicMirror's `modules` folder and execute: `git clone https://github.com/contentful/contentful_mirror`. A new folder will appear, navigate into it.
